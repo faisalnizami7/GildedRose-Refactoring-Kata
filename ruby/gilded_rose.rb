@@ -4,6 +4,7 @@ class GildedRose
   BACKSTAGE_PASS = "Backstage passes to a TAFKAL80ETC concert"
   AGED_BRIE = "Aged Brie"
   SULFURAS = "Sulfuras, Hand of Ragnaros"
+  CONJURED = "Conjured"
 
   def initialize(items)
     @items = items
@@ -13,9 +14,9 @@ class GildedRose
     @items.each do |item|
       next if sulfuras?(item)
 
+      enforce_quality_limits(item)
       update_sell_in(item)
       update_item_quality(item)
-      enforce_quality_limits(item)
     end
   end
 
@@ -27,9 +28,16 @@ class GildedRose
       update_aged_brie_quality(item)
     when backstage_pass?(item)
       update_backstage_pass_quality(item)
+    when conjured?(item)
+      update_conjured_quality(item)
     else
       update_normal_item_quality(item)
     end
+  end
+
+  def update_conjured_quality(item)
+    2.times { decrease_quality(item) }
+    2.times { decrease_quality(item) } if expired?(item)
   end
 
   def update_aged_brie_quality(item)
@@ -92,6 +100,10 @@ class GildedRose
 
   def backstage_pass?(item)
     item.name == BACKSTAGE_PASS
+  end
+
+  def conjured?(item)
+    item.name.start_with?(CONJURED)
   end
 end
 

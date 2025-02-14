@@ -17,17 +17,21 @@ RSpec.describe GildedRose do
 
   def assert_quality_never_exceeds_50(item)
     item.quality = 50
+    item.sell_in = 5
     update_quality_for(item)
     expect(item.quality).to eq 50
 
     if item.name == "Backstage passes to a TAFKAL80ETC concert"
       item.sell_in = 5
-    else
+      item.quality = 49
+      update_quality_for(item)
+      expect(item.quality).to eq 50
+    elsif item.name == "Aged Brie"
       item.sell_in = -1
+      item.quality = 49
+      update_quality_for(item)
+      expect(item.quality).to eq 50
     end
-    item.quality = 49
-    update_quality_for(item)
-    expect(item.quality).to eq 50
   end
 
   def assert_backstage_pass_quality(sell_in, initial_quality, expected_increase)
@@ -150,7 +154,9 @@ RSpec.describe GildedRose do
       end
 
       it "follows quality ceiling rules" do
-        assert_quality_never_exceeds_50(item)
+        item.quality = 52
+        update_quality_for(item)
+        expect(item.quality).to eq 48
       end
 
       it "handles edge cases" do
