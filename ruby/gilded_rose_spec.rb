@@ -128,5 +128,44 @@ RSpec.describe GildedRose do
         assert_quality_never_exceeds_50(item)
       end
     end
+
+    context "with Conjured items" do
+      let(:item) { Item.new("Conjured Mana Cake", 5, 10) }
+
+      it "decreases quality twice as fast as normal items before sell date" do
+        update_quality_for(item)
+        expect(item.quality).to eq 8
+        expect(item.sell_in).to eq 4
+      end
+
+      it "decreases quality four times as fast after sell date" do
+        item.sell_in = 0
+        update_quality_for(item)
+        expect(item.quality).to eq 6
+        expect(item.sell_in).to eq -1
+      end
+
+      it "follows quality floor rules" do
+        assert_quality_never_negative(item)
+      end
+
+      it "follows quality ceiling rules" do
+        assert_quality_never_exceeds_50(item)
+      end
+
+      it "handles edge cases" do
+        item.quality = 1
+        update_quality_for(item)
+        expect(item.quality).to eq 0
+
+        update_quality_for(item)
+        expect(item.quality).to eq 0
+
+        item.sell_in = -1
+        item.quality = 3
+        update_quality_for(item)
+        expect(item.quality).to eq 0
+      end
+    end
   end
 end
